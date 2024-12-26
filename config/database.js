@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
     try {
-        // Replace YOUR_CONNECTION_STRING with your actual MongoDB Atlas connection string
         const conn = await mongoose.connect(process.env.MONGO_URI, {
             useNewUrlParser: true,
             useUnifiedTopology: true,

@@ -1,20 +1,52 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Employees</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employees | Restaurant Management</title>
     <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
-<h1>Employees</h1>
-<% if(employees.length > 0) { %>
-    <ul>
-        <% employees.forEach(function(employee) { %>
-            <li><%= employee.name %> - <%= employee.position %></li>
-        <% }); %>
-    </ul>
-<% } else { %>
-    <p>No employees found</p>
-<% } %>
-<a href="/">Back to Home</a>
+<div class="nav-container">
+    <nav>
+        <h1 class="logo">Restaurant Management</h1>
+        <div class="nav-links">
+            <a href="/employees" class="active">Employees</a>
+            <a href="/customers">Customers</a>
+            <a href="/orders">Orders</a>
+            <a href="/tables">Tables</a>
+        </div>
+    </nav>
+</div>
+
+<div class="container">
+    <div class="header-section">
+        <h2>Employees</h2>
+        <button class="btn btn-primary">Add New Employee</button>
+    </div>
+
+    <% if(employees.length > 0) { %>
+        <div class="employees-grid">
+            <% employees.forEach(function(employee) { %>
+                <div class="card employee-card">
+                    <div class="employee-info">
+                        <h3><%= employee.name %></h3>
+                        <p class="position"><%= employee.position %></p>
+                        <div class="employee-actions">
+                            <button class="btn btn-primary">Edit</button>
+                            <button class="btn btn-danger">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+    <% } else { %>
+        <div class="card empty-state">
+            <p>No employees found</p>
+            <button class="btn btn-primary">Add First Employee</button>
+        </div>
+    <% } %>
+</div>
 </body>
 </html>

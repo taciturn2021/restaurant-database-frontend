@@ -1,16 +1,49 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Restaurant Management System</title>
     <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
-<h1>Welcome to Restaurant Management System</h1>
-<nav>
-    <a href="/employees">Employees</a>
-    <a href="/customers">Customers</a>
-    <a href="/orders">Orders</a>
-    <a href="/tables">Tables</a>
-</nav>
+<div class="nav-container">
+    <nav>
+        <h1 class="logo">Restaurant Management</h1>
+        <div class="nav-links">
+            <a href="/employees">Employees</a>
+            <a href="/customers">Customers</a>
+            <a href="/orders">Orders</a>
+            <a href="/tables">Tables</a>
+        </div>
+    </nav>
+</div>
+
+<div class="container">
+    <div class="card">
+        <h2>Welcome to Restaurant Management System</h2>
+        <p>Select a section to manage your restaurant operations:</p>
+    </div>
+
+    <div class="grid-dashboard">
+        <a href="/employees" class="dashboard-card">
+            <h3>👥 Employees</h3>
+            <p>Manage staff and schedules</p>
+        </a>
+        <a href="/customers" class="dashboard-card">
+            <h3>🧑‍🤝‍🧑 Customers</h3>
+            <p>View and manage customer data</p>
+        </a>
+        <a href="/orders" class="dashboard-card">
+            <h3>📋 Orders</h3>
+            <p>Track and process orders</p>
+        </a>
+        <a href="/tables" class="dashboard-card">
+            <h3>🪑 Tables</h3>
+            <p>Manage seating and reservations</p>
+        </a>
+    </div>
+</div>
 </body>
 </html>
