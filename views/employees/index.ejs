@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employees</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<h1>Employees</h1>
+<% if(employees.length > 0) { %>
+    <ul>
+        <% employees.forEach(function(employee) { %>
+            <li><%= employee.name %> - <%= employee.position %></li>
+        <% }); %>
+    </ul>
+<% } else { %>
+    <p>No employees found</p>
+<% } %>
+<a href="/">Back to Home</a>
+</body>
+</html>
