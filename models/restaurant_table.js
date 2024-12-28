@@ -1,9 +1,23 @@
+// models/restaurant_table.js
 const mongoose = require('mongoose');
 
-const restaurantTableSchema = new mongoose.Schema({
-    capacity: Number,
-    location: String,
-    status: { type: String, default: 'Available' }
+const tableSchema = new mongoose.Schema({
+    number: {
+        type: Number,
+        required: true
+    },
+    capacity: {
+        type: Number,
+        required: true
+    },
+    location: {
+        type: String,
+        required: true
+    },
+    status: {
+        type: String,
+        default: 'Available'
+    }
 });
 
-module.exports = mongoose.model('Restaurant_Table', restaurantTableSchema);
+module.exports = mongoose.model('Restaurant_Table', tableSchema, 'Restaurant_Table');

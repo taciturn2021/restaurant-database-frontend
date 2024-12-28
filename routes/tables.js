@@ -1,38 +1,38 @@
+// routes/tables.js
 const express = require('express');
 const router = express.Router();
-const RestaurantTable = require('../models/restaurant_table');
+const Restaurant_Table = require('../models/restaurant_table');
 
-// Get all tables
 router.get('/', async (req, res) => {
     try {
-        const tables = await RestaurantTable.find().lean();
+        console.log('Attempting to fetch tables...');
+        const tables = await Restaurant_Table.find().lean();
 
-        // Map the data to match the template's expectations
+        console.log('Raw tables data:', tables);
+
+        if (!tables || tables.length === 0) {
+            return res.render('tables/index', {
+                tables: [],
+                error: 'No tables found in database'
+            });
+        }
+
         const mappedTables = tables.map(table => ({
-            id: table._id,
-            capacity: table.capacity || 'N/A',
+            id: table._id.toString(),
+            number: table.number || 'N/A',
+            capacity: table.capacity || 0,
             location: table.location || 'N/A',
             status: table.status || 'Available'
         }));
 
+        console.log('Mapped tables data:', mappedTables);
         res.render('tables/index', { tables: mappedTables });
     } catch (error) {
         console.error('Error fetching tables:', error);
-        res.status(500).send(error.message);
-    }
-});
-
-// Create new table
-router.post('/', async (req, res) => {
-    try {
-        await RestaurantTable.create({
-            capacity: req.body.capacity,
-            location: req.body.location,
-            status: 'Available'
+        res.render('tables/index', {
+            tables: [],
+            error: 'Error loading tables. Please try again.'
         });
-        res.redirect('/tables');
-    } catch (error) {
-        res.status(400).send(error.message);
     }
 });
 
