@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/head') %>
+<body>
+<%- include('../partials/nav') %>
+
+<div class="container">
+    <div class="card">
+        <h2>New Reservation</h2>
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-danger">
+                <%= error %>
+            </div>
+        <% } %>
+
+        <form action="/reservations" method="POST" class="form" id="reservationForm">
+            <div class="form-group">
+                <label for="table_id">Table</label>
+                <select id="table_id" name="table_id" required class="form-input">
+                    <option value="">Select a table</option>
+                    <% tables.forEach(function(table) { %>
+                        <option value="<%= table._id %>"
+                                data-capacity="<%= table.capacity %>"
+                                <%= typeof formData !== 'undefined' && formData.table_id === table._id.toString() ? 'selected' : '' %>>
+                            Table <%= table.number %> (Capacity: <%= table.capacity %>)
+                        </option>
+                    <% }); %>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="customer_id">Customer</label>
+                <select id="customer_id" name="customer_id" required class="form-input">
+                    <option value="">Select a customer</option>
+                    <% customers.forEach(function(customer) { %>
+                        <option value="<%= customer.id %>"
+                                <%= typeof formData !== 'undefined' && formData.customer_id === customer.id ? 'selected' : '' %>>
+                            <%= customer.name %>
+                        </option>
+                    <% }); %>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="date">Date</label>
+                <input type="date" id="date" name="date" required class="form-input"
+                       min="<%= new Date().toISOString().split('T')[0] %>"
+                       value="<%= typeof formData !== 'undefined' ? formData.date : '' %>">
+            </div>
+
+            <div class="form-group">
+                <label for="time">Time</label>
+                <input type="time" id="time" name="time" required class="form-input"
+                       value="<%= typeof formData !== 'undefined' ? formData.time : '' %>">
+            </div>
+
+            <div class="form-group">
+                <label for="party_size">Party Size</label>
+                <input type="number" id="party_size" name="party_size" required class="form-input"
+                       min="1"
+                       value="<%= typeof formData !== 'undefined' ? formData.party_size : '' %>">
+                <small id="partySizeError" class="error-message" style="color: red; display: none;">
+                    Party size cannot exceed table capacity
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label for="special_requests">Special Requests</label>
+                <textarea id="special_requests" name="special_requests" class="form-input"><%= typeof formData !== 'undefined' ? formData.special_requests : '' %></textarea>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Create Reservation</button>
+                <a href="/reservations" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('reservationForm');
+        const tableSelect = document.getElementById('table_id');
+        const partySizeInput = document.getElementById('party_size');
+        const partySizeError = document.getElementById('partySizeError');
+
+        function validatePartySize() {
+            const selectedOption = tableSelect.options[tableSelect.selectedIndex];
+            if (!selectedOption.value) return true; // No table selected yet
+
+            const tableCapacity = parseInt(selectedOption.dataset.capacity);
+            const partySize = parseInt(partySizeInput.value);
+
+            if (partySize > tableCapacity) {
+                partySizeError.style.display = 'block';
+                partySizeError.textContent = `Party size cannot exceed table capacity (${tableCapacity})`;
+                return false;
+            } else {
+                partySizeError.style.display = 'none';
+                return true;
+            }
+        }
+
+        // Validate when party size changes
+        partySizeInput.addEventListener('input', validatePartySize);
+
+        // Validate when table selection changes
+        tableSelect.addEventListener('change', validatePartySize);
+
+        // Validate before form submission
+        form.addEventListener('submit', function(event) {
+            if (!validatePartySize()) {
+                event.preventDefault();
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

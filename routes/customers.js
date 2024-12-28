@@ -40,26 +40,11 @@ router.get('/', async (req, res) => {
     }
 });
 
-
-// READ - Get single customer
-router.get('/:id', async (req, res) => {
-    try {
-        const customer = await Customer.findById(req.params.id)
-            .populate('person_id')
-            .lean();
-
-        if (!customer) {
-            return res.status(404).send('Customer not found');
-        }
-
-        res.render('customers/show', { customer });
-    } catch (error) {
-        console.error('Error fetching customer:', error);
-        res.status(500).send(error.message);
-    }
+// Show new customer form (This route must come BEFORE the /:id routes)
+router.get('/new', (req, res) => {
+    res.render('customers/new');
 });
 
-// GET route for edit page
 router.get('/:id/edit', async (req, res) => {
     try {
         const customer = await Customer.findById(req.params.id)
@@ -84,6 +69,25 @@ router.get('/:id/edit', async (req, res) => {
     } catch (error) {
         console.error('Error fetching customer for edit:', error);
         res.status(500).render('error', { message: 'Error loading customer data' });
+    }
+});
+
+
+// READ - Get single customer
+router.get('/:id', async (req, res) => {
+    try {
+        const customer = await Customer.findById(req.params.id)
+            .populate('person_id')
+            .lean();
+
+        if (!customer) {
+            return res.status(404).send('Customer not found');
+        }
+
+        res.render('customers/show', { customer });
+    } catch (error) {
+        console.error('Error fetching customer:', error);
+        res.status(500).send(error.message);
     }
 });
 

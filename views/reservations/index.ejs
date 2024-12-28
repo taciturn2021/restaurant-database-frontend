@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/head') %>
+<body>
+<%- include('../partials/nav') %>
+
+<div class="container">
+    <div class="header-actions">
+        <h2>Reservations</h2>
+        <a href="/reservations/new" class="btn btn-primary">New Reservation</a>
+    </div>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-danger">
+            <%= error %>
+        </div>
+    <% } %>
+
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Table</th>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Party Size</th>
+                <th>Status</th>
+                <th>Special Requests</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <% reservations.forEach(function(reservation) { %>
+                <tr>
+                    <td><%= reservation.tableNumber %></td>
+                    <td><%= reservation.customerName %></td>
+                    <td><%= reservation.date %></td>
+                    <td><%= reservation.time %></td>
+                    <td><%= reservation.partySize %></td>
+                    <td><%= reservation.status %></td>
+                    <td><%= reservation.specialRequests %></td>
+                    <td>
+                        <form action="/reservations/<%= reservation.id %>/delete" method="POST" style="display: inline;">
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this reservation?')">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            <% }); %>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

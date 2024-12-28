@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const Restaurant_Table = require('../models/restaurant_table');
 
+// GET all tables (index)
 router.get('/', async (req, res) => {
     try {
         console.log('Attempting to fetch tables...');
@@ -36,22 +37,12 @@ router.get('/', async (req, res) => {
     }
 });
 
-// READ - Get single table
-router.get('/:id', async (req, res) => {
-    try {
-        const table = await Restaurant_Table.findById(req.params.id).lean();
-        if (!table) {
-            return res.status(404).send('Table not found');
-        }
-
-        res.render('tables/show', { table });
-    } catch (error) {
-        console.error('Error fetching table:', error);
-        res.status(500).send(error.message);
-    }
+// GET new table form (must come before /:id routes)
+router.get('/new', (req, res) => {
+    res.render('tables/new');
 });
 
-// CREATE - Add new table
+// POST create new table
 router.post('/', async (req, res) => {
     try {
         const table = new Restaurant_Table({
@@ -65,39 +56,95 @@ router.post('/', async (req, res) => {
         res.redirect('/tables');
     } catch (error) {
         console.error('Error creating table:', error);
-        res.status(500).send(error.message);
+        // Check for duplicate key error
+        if (error.code === 11000) {
+            res.render('tables/new', {
+                error: 'Table number already exists. Please choose a different number.',
+                table: req.body
+            });
+        } else {
+            res.render('tables/new', {
+                error: 'Error creating table: ' + error.message,
+                table: req.body
+            });
+        }
     }
 });
 
-// UPDATE - Update table
-router.put('/:id', async (req, res) => {
+
+// GET single table
+router.get('/:id', async (req, res) => {
+    try {
+        const table = await Restaurant_Table.findById(req.params.id).lean();
+        if (!table) {
+            return res.status(404).render('error', { message: 'Table not found' });
+        }
+
+        res.render('tables/show', { table });
+    } catch (error) {
+        console.error('Error fetching table:', error);
+        res.status(500).render('error', { message: 'Error loading table data' });
+    }
+});
+
+// GET edit form
+router.get('/:id/edit', async (req, res) => {
+    try {
+        const table = await Restaurant_Table.findById(req.params.id).lean();
+        if (!table) {
+            return res.redirect('/tables');
+        }
+
+        const formData = {
+            id: table._id.toString(),
+            number: table.number,
+            capacity: table.capacity,
+            location: table.location,
+            status: table.status
+        };
+
+        res.render('tables/edit', { table: formData });
+    } catch (error) {
+        console.error('Error fetching table for edit:', error);
+        res.redirect('/tables');
+    }
+});
+
+// POST update table
+router.post('/:id/update', async (req, res) => {
     try {
         const table = await Restaurant_Table.findById(req.params.id);
         if (!table) {
-            return res.status(404).send('Table not found');
+            return res.redirect('/tables');
         }
 
-        table.number = req.body.number || table.number;
-        table.capacity = req.body.capacity || table.capacity;
-        table.location = req.body.location || table.location;
-        table.status = req.body.status || table.status;
+        table.number = req.body.number;
+        table.capacity = req.body.capacity;
+        table.location = req.body.location;
+        table.status = req.body.status || 'Available';
 
         await table.save();
         res.redirect('/tables');
     } catch (error) {
         console.error('Error updating table:', error);
-        res.status(500).send(error.message);
+        // Check for duplicate key error
+        if (error.code === 11000) {
+            res.render('tables/edit', {
+                error: 'Table number already exists. Please choose a different number.',
+                table: { ...req.body, id: req.params.id }
+            });
+        } else {
+            res.render('tables/edit', {
+                error: 'Error updating table: ' + error.message,
+                table: { ...req.body, id: req.params.id }
+            });
+        }
     }
 });
 
-// DELETE - Remove table
-router.delete('/:id', async (req, res) => {
+// POST delete table
+router.post('/:id/delete', async (req, res) => {
     try {
-        const table = await Restaurant_Table.findById(req.params.id);
-        if (!table) {
-            return res.status(404).send('Table not found');
-        }
-
         await Restaurant_Table.findByIdAndDelete(req.params.id);
         res.redirect('/tables');
     } catch (error) {

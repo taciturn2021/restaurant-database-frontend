@@ -29,7 +29,7 @@ app.use('/employees', require('./routes/employees'));
 app.use('/customers', require('./routes/customers'));
 app.use('/orders', require('./routes/orders'));
 app.use('/tables', require('./routes/tables'));
-
+app.use('/reservations', require('./routes/reservations'));
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
