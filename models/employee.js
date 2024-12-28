@@ -1,4 +1,4 @@
-
+// models/employee.js
 const mongoose = require('mongoose');
 
 const employeeSchema = new mongoose.Schema({
@@ -21,4 +21,4 @@ const employeeSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Employee', employeeSchema);
+module.exports = mongoose.model('Employee', employeeSchema, 'Employee');  // Explicitly specify 'Employee' collection

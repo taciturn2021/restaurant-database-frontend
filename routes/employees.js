@@ -7,12 +7,28 @@ const mongoose = require('mongoose');
 
 router.get('/', async (req, res) => {
     try {
+
+        // First check if collections exist
+        const collections = await mongoose.connection.db.listCollections().toArray();
+
         const employees = await Employee.find()
-            .populate('person_id')
+            .populate({
+                path: 'person_id',
+                model: 'Person'
+            })
             .lean();
-        console.log(employees);
+
+
+        if (!employees || employees.length === 0) {
+            console.log('No employees found in database');
+            return res.render('employees/index', {
+                employees: [],
+                error: 'No employees found in database'
+            });
+        }
+
         const mappedEmployees = employees.map(emp => ({
-            id: emp._id.toString(), // Ensure ID is converted to string
+            id: emp._id.toString(),
             name: emp.person_id ? emp.person_id.name : 'N/A',
             position: emp.position || 'N/A',
             shift: emp.shift || 'N/A',
@@ -20,9 +36,11 @@ router.get('/', async (req, res) => {
             email: emp.person_id ? emp.person_id.email : 'N/A'
         }));
 
+        console.log('Mapped employees data:', JSON.stringify(mappedEmployees, null, 2));
         res.render('employees/index', { employees: mappedEmployees });
     } catch (error) {
         console.error('Error fetching employees:', error);
+        console.error('Error stack:', error.stack);
         res.render('employees/index', {
             employees: [],
             error: 'Error loading employees. Please try again.'

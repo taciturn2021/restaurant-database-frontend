@@ -2,26 +2,11 @@
 const mongoose = require('mongoose');
 
 const personSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true
-    },
-    phone: {
-        type: String,
-        default: ''
-    },
-    email: {
-        type: String,
-        default: ''
-    },
-    address: {
-        type: String,
-        default: ''
-    },
-    hire_date: {
-        type: Date,
-        default: Date.now
-    }
-}, { timestamps: true });
+    name: { type: String, required: true },
+    phone: String,
+    email: String,
+    address: String,
+    hire_date: Date
+});
 
-module.exports = mongoose.model('Person', personSchema);
+module.exports = mongoose.model('Person', personSchema, 'Person');  // Explicitly specify 'Person' collection
