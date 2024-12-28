@@ -1,0 +1,59 @@
+<!-- views/tables/index.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Management System - Tables</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="nav-container">
+    <nav>
+        <h1 class="logo">Restaurant Management</h1>
+        <div class="nav-links">
+            <a href="/employees">Employees</a>
+            <a href="/customers">Customers</a>
+            <a href="/orders">Orders</a>
+            <a href="/tables">Tables</a>
+        </div>
+    </nav>
+</div>
+
+<div class="container">
+    <div class="header-section">
+        <h2>Tables</h2>
+        <a href="/tables/new" class="btn btn-primary">Add New Table</a>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+            <tr>
+                <th>Table Number</th>
+                <th>Capacity</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <% tables.forEach(table => { %>
+                <tr>
+                    <td><%= table.capacity %></td>
+                    <td><%= table.location %></td>
+                    <td><%= table.status %></td>
+                    <td>
+                        <a href="/tables/edit/<%= table.id %>" class="btn btn-primary">Edit</a>
+                        <form action="/tables/delete/<%= table.id %>" method="POST" style="display: inline;">
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            <% }) %>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

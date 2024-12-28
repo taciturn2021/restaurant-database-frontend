@@ -1,20 +1,62 @@
+<!-- views/customers/index.ejs -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Customers</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Management System - Customers</title>
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-<h1>Customers</h1>
-<% if(customers.length > 0) { %>
-    <ul>
-        <% customers.forEach(function(customer) { %>
-            <li><%= customer.name %></li>
-        <% }); %>
-    </ul>
-<% } else { %>
-    <p>No customers found</p>
-<% } %>
-<a href="/">Back to Home</a>
+<div class="nav-container">
+    <nav>
+        <h1 class="logo">Restaurant Management</h1>
+        <div class="nav-links">
+            <a href="/employees">Employees</a>
+            <a href="/customers">Customers</a>
+            <a href="/orders">Orders</a>
+            <a href="/tables">Tables</a>
+        </div>
+    </nav>
+</div>
+
+<div class="container">
+    <div class="header-section">
+        <h2>Customers</h2>
+        <a href="/customers/new" class="btn btn-primary">Add New Customer</a>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Loyalty Points</th>
+                <th>Member Since</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <% customers.forEach(customer => { %>
+                <tr>
+                    <td><%= customer.name %></td>
+                    <td><%= customer.phone %></td>
+                    <td><%= customer.email %></td>
+                    <td><%= customer.loyalty_points %></td>
+                    <td><%= customer.member_since %></td>
+                    <td>
+                        <a href="/customers/edit/<%= customer.id %>" class="btn btn-primary">Edit</a>
+                        <form action="/customers/delete/<%= customer.id %>" method="POST" style="display: inline;">
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            <% }) %>
+            </tbody>
+        </table>
+    </div>
+</div>
 </body>
 </html>

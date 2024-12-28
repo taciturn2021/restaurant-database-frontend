@@ -1,17 +1,36 @@
-
+<!-- views/employees/index.ejs -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <%- include('../partials/head') %>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Management System - Employees</title>
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-<%- include('../partials/nav') %>
+<div class="nav-container">
+    <nav>
+        <h1 class="logo">Restaurant Management</h1>
+        <div class="nav-links">
+            <a href="/employees">Employees</a>
+            <a href="/customers">Customers</a>
+            <a href="/orders">Orders</a>
+            <a href="/tables">Tables</a>
+        </div>
+    </nav>
+</div>
 
 <div class="container">
     <div class="header-section">
         <h2>Employees</h2>
         <a href="/employees/new" class="btn btn-primary">Add New Employee</a>
     </div>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-danger">
+            <%= error %>
+        </div>
+    <% } %>
 
     <div class="table-container">
         <table>
@@ -26,21 +45,27 @@
             </tr>
             </thead>
             <tbody>
-            <% employees.forEach(employee => { %>
+            <% if (employees && employees.length > 0) { %>
+                <% employees.forEach(employee => { %>
+                    <tr>
+                        <td><%= employee.name %></td>
+                        <td><%= employee.position %></td>
+                        <td><%= employee.shift %></td>
+                        <td><%= employee.phone %></td>
+                        <td><%= employee.email %></td>
+                        <td>
+                            <a href="/employees/edit/<%= employee.id %>" class="btn btn-primary">Edit</a>
+                            <form action="/employees/delete/<%= employee.id %>" method="POST" style="display: inline;">
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                <% }) %>
+            <% } else { %>
                 <tr>
-                    <td><%= employee.name %></td>
-                    <td><%= employee.position %></td>
-                    <td><%= employee.shift %></td>
-                    <td><%= employee.phone %></td>
-                    <td><%= employee.email %></td>
-                    <td>
-                        <a href="/employees/edit/<%= employee.id %>" class="btn btn-primary">Edit</a>
-                        <form action="/employees/delete/<%= employee.id %>" method="POST" style="display: inline;">
-                            <button type="submit" class="btn btn-danger">Delete</button>
-                        </form>
-                    </td>
+                    <td colspan="6" class="text-center">No employees found</td>
                 </tr>
-            <% }) %>
+            <% } %>
             </tbody>
         </table>
     </div>
