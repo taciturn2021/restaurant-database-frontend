@@ -1,24 +1,9 @@
 <!-- views/employees/index.ejs -->
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Restaurant Management System - Employees</title>
-    <link rel="stylesheet" href="/css/style.css">
-</head>
+<%- include('../partials/head') %>
 <body>
-<div class="nav-container">
-    <nav>
-        <h1 class="logo">Restaurant Management</h1>
-        <div class="nav-links">
-            <a href="/employees">Employees</a>
-            <a href="/customers">Customers</a>
-            <a href="/orders">Orders</a>
-            <a href="/tables">Tables</a>
-        </div>
-    </nav>
-</div>
+<%- include('../partials/nav') %>
 
 <div class="container">
     <div class="header-section">
