@@ -48,32 +48,105 @@ router.get('/', async (req, res) => {
     }
 });
 
-// Add employee route
+// Show form to create new employee
+router.get('/new', (req, res) => {
+    res.render('employees/new');
+});
+
+// Create new employee (CREATE)
 router.post('/', async (req, res) => {
     try {
-        // Create person first
-        const person = new Person({
+        await Employee.create(req.body);
+        res.redirect('/employees');
+    } catch (error) {
+        res.render('employees/new', {
+            error: 'Error creating employee',
+            employee: req.body
+        });
+    }
+});
+
+// Get edit form
+router.get('/:id/edit', async (req, res) => {
+    try {
+        const employee = await Employee.findById(req.params.id)
+            .populate('person_id')
+            .lean();
+
+        if (!employee) {
+            return res.redirect('/employees');
+        }
+
+        // Format the data for the edit form
+        const formData = {
+            id: employee._id.toString(),
+            name: employee.person_id.name,
+            phone: employee.person_id.phone,
+            email: employee.person_id.email,
+            address: employee.person_id.address,
+            position: employee.position,
+            shift: employee.shift,
+            salary: employee.salary
+        };
+
+        res.render('employees/edit', { employee: formData });
+    } catch (error) {
+        console.error('Error fetching employee for edit:', error);
+        res.redirect('/employees');
+    }
+});
+
+// Update employee
+router.post('/:id/update', async (req, res) => {
+    try {
+        const employee = await Employee.findById(req.params.id);
+        if (!employee) {
+            return res.redirect('/employees');
+        }
+
+        // Update person information
+        await Person.findByIdAndUpdate(employee.person_id, {
             name: req.body.name,
             phone: req.body.phone,
             email: req.body.email,
-            address: req.body.address,
-            hire_date: new Date()
+            address: req.body.address
         });
-        await person.save();
 
-        // Create employee with reference to person
-        const employee = new Employee({
-            person_id: person._id,
-            salary: req.body.salary,
+        // Update employee information
+        await Employee.findByIdAndUpdate(req.params.id, {
             position: req.body.position,
-            shift: req.body.shift
+            shift: req.body.shift,
+            salary: req.body.salary
         });
-        await employee.save();
 
         res.redirect('/employees');
     } catch (error) {
-        console.error('Error creating employee:', error);
-        res.status(500).send(error.message);
+        console.error('Error updating employee:', error);
+        // Pass back the form data and error message
+        res.render('employees/edit', {
+            employee: {
+                id: req.params.id,
+                ...req.body
+            },
+            error: 'Error updating employee. Please try again.'
+        });
+    }
+});
+
+// Delete employee
+router.post('/:id/delete', async (req, res) => {
+    try {
+        const employee = await Employee.findById(req.params.id);
+        if (employee) {
+            // Delete associated person
+            await Person.findByIdAndDelete(employee.person_id);
+            // Delete employee
+            await Employee.findByIdAndDelete(req.params.id);
+        }
+        res.redirect('/employees');
+    } catch (error) {
+        console.error('Error deleting employee:', error);
+        res.redirect('/employees');
     }
 });
 
