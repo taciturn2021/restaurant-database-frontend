@@ -53,14 +53,31 @@ router.get('/new', (req, res) => {
     res.render('employees/new');
 });
 
-// Create new employee (CREATE)
 router.post('/', async (req, res) => {
     try {
-        await Employee.create(req.body);
+        // First create the person
+        const person = new Person({
+            name: req.body.name,
+            phone: req.body.phone,
+            email: req.body.email,
+            address: req.body.address
+        });
+        await person.save();
+
+        // Then create the employee with the person_id reference
+        const employee = new Employee({
+            person_id: person._id,  // This is the required field that was missing
+            position: req.body.position,
+            shift: req.body.shift,
+            salary: req.body.salary
+        });
+        await employee.save();
+
         res.redirect('/employees');
     } catch (error) {
+        console.error('Error creating employee:', error);
         res.render('employees/new', {
-            error: 'Error creating employee',
+            error: 'Error creating employee: ' + error.message,
             employee: req.body
         });
     }
