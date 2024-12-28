@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
-const Employee = require('./employee');
 
 const waiterSchema = new mongoose.Schema({
-    sectionNumber: Number,
-    totalTips: Number
+    employee_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Employee', required: true },
+    section_number: Number,
+    total_tips: Number
 });
 
-module.exports = Employee.discriminator('Waiter', waiterSchema);
+module.exports = mongoose.model('Waiter', waiterSchema);

@@ -1,52 +1,49 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employees | Restaurant Management</title>
-    <link rel="stylesheet" href="/css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <%- include('../partials/head') %>
 </head>
 <body>
-<div class="nav-container">
-    <nav>
-        <h1 class="logo">Restaurant Management</h1>
-        <div class="nav-links">
-            <a href="/employees" class="active">Employees</a>
-            <a href="/customers">Customers</a>
-            <a href="/orders">Orders</a>
-            <a href="/tables">Tables</a>
-        </div>
-    </nav>
-</div>
+<%- include('../partials/nav') %>
 
 <div class="container">
     <div class="header-section">
         <h2>Employees</h2>
-        <button class="btn btn-primary">Add New Employee</button>
+        <a href="/employees/new" class="btn btn-primary">Add New Employee</a>
     </div>
 
-    <% if(employees.length > 0) { %>
-        <div class="employees-grid">
-            <% employees.forEach(function(employee) { %>
-                <div class="card employee-card">
-                    <div class="employee-info">
-                        <h3><%= employee.name %></h3>
-                        <p class="position"><%= employee.position %></p>
-                        <div class="employee-actions">
-                            <button class="btn btn-primary">Edit</button>
-                            <button class="btn btn-danger">Delete</button>
-                        </div>
-                    </div>
-                </div>
-            <% }); %>
-        </div>
-    <% } else { %>
-        <div class="card empty-state">
-            <p>No employees found</p>
-            <button class="btn btn-primary">Add First Employee</button>
-        </div>
-    <% } %>
+    <div class="table-container">
+        <table>
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Position</th>
+                <th>Shift</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <% employees.forEach(employee => { %>
+                <tr>
+                    <td><%= employee.name %></td>
+                    <td><%= employee.position %></td>
+                    <td><%= employee.shift %></td>
+                    <td><%= employee.phone %></td>
+                    <td><%= employee.email %></td>
+                    <td>
+                        <a href="/employees/edit/<%= employee.id %>" class="btn btn-primary">Edit</a>
+                        <form action="/employees/delete/<%= employee.id %>" method="POST" style="display: inline;">
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            <% }) %>
+            </tbody>
+        </table>
+    </div>
 </div>
 </body>
 </html>

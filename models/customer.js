@@ -1,15 +1,9 @@
 const mongoose = require('mongoose');
-const Person = require('./person');
 
 const customerSchema = new mongoose.Schema({
-    loyaltyPoints: {
-        type: Number,
-        default: 0
-    },
-    memberSince: {
-        type: Date,
-        default: Date.now
-    }
+    person_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Person', required: true },
+    loyalty_points: { type: Number, default: 0 },
+    member_since: { type: Date, default: Date.now }
 });
 
-module.exports = Person.discriminator('Customer', customerSchema);
+module.exports = mongoose.model('Customer', customerSchema);

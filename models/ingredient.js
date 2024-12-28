@@ -1,10 +1,7 @@
 const mongoose = require('mongoose');
 
 const ingredientSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true
-    },
+    name: String,
     quantity: Number,
     unit: String,
     cost: Number
