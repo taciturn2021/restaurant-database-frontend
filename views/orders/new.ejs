@@ -1,4 +1,3 @@
-<!-- views/orders/new.ejs -->
 <!DOCTYPE html>
 <html lang="en">
 <%- include('../partials/head') %>
@@ -6,16 +5,16 @@
 <%- include('../partials/nav') %>
 
 <div class="container">
-    <div class="header-section">
-        <h2>New Order</h2>
-        <a href="/orders" class="btn btn-secondary">Back to Orders</a>
-    </div>
+    <div class="card">
+        <div class="header-section">
+            <h2>New Order</h2>
+            <a href="/orders" class="btn btn-secondary">Back to Orders</a>
+        </div>
 
-    <div class="order-form">
-        <form id="newOrderForm" action="/orders" method="POST">
+        <form id="newOrderForm" action="/orders" method="POST" class="form">
             <div class="form-group">
                 <label>Table:</label>
-                <select name="table_id" required>
+                <select name="table_id" required class="form-input">
                     <% tables.filter(table => table.status === 'Available').forEach(table => { %>
                         <option value="<%= table._id %>">Table <%= table.number %></option>
                     <% }) %>
@@ -24,25 +23,39 @@
 
             <div class="form-group">
                 <label>Waiter:</label>
-                <select name="waiter_id" required>
+                <select name="waiter_id" required class="form-input">
                     <% waiters.forEach(waiter => { %>
-                        <option value="<%= waiter._id %>"><%= waiter.employee_id.name %></option>
+                        <option value="<%= waiter._id %>">
+                            <%= waiter.employee_id.name %>
+                        </option>
                     <% }) %>
                 </select>
             </div>
 
             <div id="menuItems">
                 <div class="menu-item-entry">
-                    <div class="menu-item-row">
-                        <select name="items[0][menu_item_id]" required>
+                    <div class="form-group">
+                        <label>Menu Item</label>
+                        <select name="items[0][menu_item_id]" required class="form-input">
                             <% menuItems.forEach(item => { %>
-                                <option value="<%= item._id %>"><%= item.name %> - $<%= item.price %></option>
+                                <option value="<%= item._id %>">
+                                    <%= item.name %> - $<%= item.price %>
+                                </option>
                             <% }) %>
                         </select>
-                        <input type="number" name="items[0][quantity]" class="quantity-input" value="1" min="1" required>
-                        <button type="button" class="btn btn-danger remove-item" onclick="removeMenuItem(this)">Remove</button>
                     </div>
-                    <input type="text" name="items[0][special_instructions]" placeholder="Special instructions">
+
+                    <div class="form-group">
+                        <label>Quantity</label>
+                        <input type="number" name="items[0][quantity]" class="form-input quantity-input" value="1" min="1" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Special Instructions</label>
+                        <input type="text" name="items[0][special_instructions]" class="form-input" placeholder="Special instructions">
+                    </div>
+
+                    <button type="button" class="btn btn-danger remove-item" onclick="removeMenuItem(this)">Remove</button>
                 </div>
             </div>
 
@@ -50,7 +63,7 @@
 
             <div class="form-group">
                 <label>Special Requests:</label>
-                <textarea name="special_requests"></textarea>
+                <textarea name="special_requests" class="form-input"></textarea>
             </div>
 
             <div class="form-actions">
@@ -69,16 +82,25 @@
         const newItem = document.createElement('div');
         newItem.className = 'menu-item-entry';
         newItem.innerHTML = `
-            <div class="menu-item-row">
-                <select name="items[${menuItemCount}][menu_item_id]" required>
+            <div class="form-group">
+                <label>Menu Item</label>
+                <select name="items[${menuItemCount}][menu_item_id]" required class="form-input">
                     <% menuItems.forEach(item => { %>
-                        <option value="<%= item._id %>"><%= item.name %> - $<%= item.price %></option>
+                        <option value="<%= item._id %>">
+                            <%= item.name %> - $<%= item.price %>
+                        </option>
                     <% }) %>
                 </select>
-                <input type="number" name="items[${menuItemCount}][quantity]" class="quantity-input" value="1" min="1" required>
-                <button type="button" class="btn btn-danger remove-item" onclick="removeMenuItem(this)">Remove</button>
             </div>
-            <input type="text" name="items[${menuItemCount}][special_instructions]" placeholder="Special instructions">
+            <div class="form-group">
+                <label>Quantity</label>
+                <input type="number" name="items[${menuItemCount}][quantity]" class="form-input quantity-input" value="1" min="1" required>
+            </div>
+            <div class="form-group">
+                <label>Special Instructions</label>
+                <input type="text" name="items[${menuItemCount}][special_instructions]" class="form-input" placeholder="Special instructions">
+            </div>
+            <button type="button" class="btn btn-danger remove-item" onclick="removeMenuItem(this)">Remove</button>
         `;
         container.appendChild(newItem);
         menuItemCount++;
