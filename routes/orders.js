@@ -262,6 +262,100 @@ router.put('/:id/status', async (req, res) => {
     }
 });
 
+// Get order history
+router.get('/history', async (req, res) => {
+    try {
+        const closedOrders = await Restaurant_Order.find({ status: 'Closed' })
+            .populate([
+                {
+                    path: 'table_id'
+                },
+                {
+                    path: 'order_items',
+                    populate: { path: 'menu_item' }
+                }
+            ])
+            .sort({ order_time: -1 })
+            .lean();
+
+        // Fetch reviews for these orders
+        const reviews = await Review.find({
+            order_id: { $in: closedOrders.map(order => order._id) }
+        }).lean();
+
+        // Add review data to orders
+        const ordersWithReviews = closedOrders.map(order => ({
+            ...order,
+            review: reviews.find(review => review.order_id.toString() === order._id.toString())
+        }));
+
+        res.render('orders/history', { closedOrders: ordersWithReviews });
+    } catch (error) {
+        console.error('Error fetching order history:', error);
+        res.status(500).send('Error loading order history');
+    }
+});
+
+// Process payment for an order
+router.post('/:id/payment', async (req, res) => {
+    try {
+        const orderId = req.params.id;
+        const { payment_method } = req.body;
+
+        const order = await Restaurant_Order.findById(orderId);
+        if (!order) {
+            return res.status(404).json({ error: 'Order not found' });
+        }
+
+        // Create new payment
+        const payment = new Payment({
+            order_id: orderId,
+            amount: order.total_amount,
+            payment_method: payment_method,
+            payment_time: new Date(),
+            status: 'Completed'
+        });
+        await payment.save();
+
+        // Update order payment status
+        order.payment_status = 'Completed';
+        await order.save();
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error processing payment:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Add review for an order
+router.post('/:id/review', async (req, res) => {
+    try {
+        const orderId = req.params.id;
+        const { rating, comment } = req.body;
+
+        const order = await Restaurant_Order.findById(orderId);
+        if (!order) {
+            return res.status(404).json({ error: 'Order not found' });
+        }
+
+        // Create new review
+        const review = new Review({
+            order_id: orderId,
+            customer_id: order.customer_id,
+            rating: rating,
+            comment: comment,
+            review_date: new Date()
+        });
+        await review.save();
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error adding review:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // Delete order
 router.delete('/:id', async (req, res) => {
     try {

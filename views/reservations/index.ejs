@@ -5,9 +5,9 @@
 <%- include('../partials/nav') %>
 
 <div class="container">
-    <div class="header-actions">
+    <div class="header-section">
         <h2>Reservations</h2>
-        <a href="/reservations/new" class="btn btn-primary">New Reservation</a>
+        <a href="/reservations/new" class="btn btn-primary">Create New Reservation</a>
     </div>
 
     <% if (typeof error !== 'undefined' && error) { %>
@@ -16,8 +16,8 @@
         </div>
     <% } %>
 
-    <div class="table-responsive">
-        <table class="table">
+    <div class="table-container">
+        <table>
             <thead>
             <tr>
                 <th>Table</th>

@@ -8,7 +8,10 @@
 <div class="container">
     <div class="header-section">
         <h2>Orders</h2>
-        <a href="/orders/new" class="btn btn-primary">New Order</a>
+        <div class="button-group">
+            <a href="/orders/new" class="btn btn-primary">New Order</a>
+            <a href="/orders/history" class="btn btn-secondary">Order History</a>
+        </div>
     </div>
 
     <% if (typeof error !== 'undefined' && error) { %>
@@ -71,7 +74,9 @@
                 newStatus = 'Completed';
                 break;
             case 'Completed':
-                newStatus = 'Closed';
+                if (confirm('Are you sure you want to close this order? You will be redirected to process payment.')) {
+                    newStatus = 'Closed';
+                }
                 break;
             default:
                 return;
@@ -87,7 +92,11 @@
             });
 
             if (response.ok) {
-                location.reload();
+                if (newStatus === 'Closed') {
+                    window.location.href = `/orders/history`;
+                } else {
+                    location.reload();
+                }
             }
         } catch (error) {
             console.error('Error updating order status:', error);
