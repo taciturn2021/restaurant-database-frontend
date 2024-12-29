@@ -6,4 +6,4 @@ const waiterSchema = new mongoose.Schema({
     total_tips: Number
 });
 
-module.exports = mongoose.model('Waiter', waiterSchema);
+module.exports = mongoose.model('Waiter', waiterSchema, 'Waiter');

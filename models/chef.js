@@ -6,4 +6,4 @@ const chefSchema = new mongoose.Schema({
     certification: String
 });
 
-module.exports = mongoose.model('Chef', chefSchema);
+module.exports = mongoose.model('Chef', chefSchema, 'Chef');

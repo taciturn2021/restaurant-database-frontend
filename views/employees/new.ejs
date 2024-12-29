@@ -39,6 +39,35 @@
             </div>
 
             <div class="form-group">
+                <label for="employeeType">Employee Type</label>
+                <select id="employeeType" name="employeeType" required class="form-input">
+                    <option value="Waiter">Waiter</option>
+                    <option value="Chef">Chef</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div id="waiterFields" style="display: none;">
+                <div class="form-group">
+                    <label for="section_number">Section Number</label>
+                    <input type="number" id="section_number" name="section_number" class="form-input">
+                </div>
+            </div>
+
+            <div id="chefFields" style="display: none;">
+                <div class="form-group">
+                    <label for="specialization">Specialization</label>
+                    <input type="text" id="specialization" name="specialization" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label for="certification">Certification</label>
+                    <input type="text" id="certification" name="certification" class="form-input">
+                </div>
+            </div>
+
+
+
+            <div class="form-group">
                 <label for="position">Position</label>
                 <input type="text" id="position" name="position" required class="form-input"
                        value="<%= typeof employee !== 'undefined' ? employee.position : '' %>">
@@ -65,5 +94,23 @@
         </form>
     </div>
 </div>
+
+<script>
+    document.getElementById('employeeType').addEventListener('change', function() {
+        const waiterFields = document.getElementById('waiterFields');
+        const chefFields = document.getElementById('chefFields');
+
+        // Hide all specific fields first
+        waiterFields.style.display = 'none';
+        chefFields.style.display = 'none';
+
+        // Show relevant fields based on selection
+        if (this.value === 'Waiter') {
+            waiterFields.style.display = 'block';
+        } else if (this.value === 'Chef') {
+            chefFields.style.display = 'block';
+        }
+    });
+</script>
 </body>
 </html>

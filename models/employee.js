@@ -1,10 +1,16 @@
-// models/employee.js
+
 const mongoose = require('mongoose');
+
 
 const employeeSchema = new mongoose.Schema({
     person_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Person',
+        required: true
+    },
+    employeeType: {
+        type: String,
+        enum: ['Waiter', 'Chef', 'Other'],
         required: true
     },
     salary: {
