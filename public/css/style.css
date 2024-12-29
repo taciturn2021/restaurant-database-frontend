@@ -324,6 +324,94 @@ ul {
     background-color: #475569;
 }
 
+.order-form {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-top: 1rem;
+}
+
+.menu-item-entry {
+    margin-bottom: 1.5rem;
+}
+
+.menu-item-row {
+    display: grid;
+    grid-template-columns: 3fr 1fr auto;
+    gap: 1rem;
+    align-items: center;
+}
+
+.quantity-input {
+    width: 100%;
+}
+
+.total-amount {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background-color: var(--background-color);
+    border-radius: 0.5rem;
+}
+
+.remove-item {
+    padding: 0.5rem 1rem;
+}
+
+/* Table status indicators */
+.table-status {
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.status-available {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.status-occupied {
+    background-color: var(--warning-color);
+    color: white;
+}
+
+/* Review stars */
+.review-stars {
+    color: #fbbf24;
+    font-size: 1.25rem;
+}
+
+/* Order status badges */
+.order-status {
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.status-open {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.status-in-progress {
+    background-color: var(--warning-color);
+    color: white;
+}
+
+.status-completed {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.status-closed {
+    background-color: var(--text-color);
+    color: white;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     nav {

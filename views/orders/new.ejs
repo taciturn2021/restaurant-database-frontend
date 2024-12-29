@@ -1,0 +1,132 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/head') %>
+<body>
+<%- include('../partials/nav') %>
+
+<div class="container">
+    <div class="header-section">
+        <h2>Create New Order</h2>
+    </div>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-danger">
+            <%= error %>
+        </div>
+    <% } %>
+
+    <form action="/orders" method="POST" class="order-form">
+        <div class="form-group">
+            <label for="waiter_id">Waiter:</label>
+            <select name="waiter_id" id="waiter_id" class="form-control" required>
+                <option value="">Select Waiter</option>
+                <% waiters.forEach(waiter => { %>
+                    <option value="<%= waiter._id %>"><%= waiter.name %></option>
+                <% }) %>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="table_id">Table:</label>
+            <select name="table_id" id="table_id" class="form-control" required>
+                <option value="">Select Table</option>
+                <% tables.forEach(table => { %>
+                    <% if(table.status === 'Available') { %>
+                        <option value="<%= table._id %>">Table <%= table.number %> (Capacity: <%= table.capacity %>)</option>
+                    <% } %>
+                <% }) %>
+            </select>
+        </div>
+
+        <div id="menu-items-container">
+            <div class="menu-item-entry form-group">
+                <label>Menu Item:</label>
+                <div class="menu-item-row">
+                    <select name="menu_items[]" class="form-control menu-item-select" required>
+                        <option value="">Select Menu Item</option>
+                        <% menuItems.forEach(item => { %>
+                            <option value="<%= item._id %>" data-price="<%= item.price %>">
+                                <%= item.name %> - $<%= item.price %>
+                            </option>
+                        <% }) %>
+                    </select>
+                    <input type="number" name="quantities[]" class="form-control quantity-input"
+                           value="1" min="1" required>
+                    <button type="button" class="btn btn-danger btn-sm remove-item" style="display: none;">
+                        Remove
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <button type="button" id="add-item" class="btn btn-secondary">
+            + Add Another Item
+        </button>
+
+        <div class="form-group">
+            <label for="special_requests">Special Requests:</label>
+            <textarea name="special_requests" id="special_requests"
+                      class="form-control"></textarea>
+        </div>
+
+        <div class="total-amount">
+            Total Amount: $<span id="total">0.00</span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Place Order</button>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const container = document.getElementById('menu-items-container');
+        const addButton = document.getElementById('add-item');
+        const totalSpan = document.getElementById('total');
+
+        function updateTotal() {
+            let total = 0;
+            const menuItems = document.querySelectorAll('.menu-item-select');
+            const quantities = document.querySelectorAll('.quantity-input');
+
+            menuItems.forEach((select, index) => {
+                const option = select.selectedOptions[0];
+                if (option && option.dataset.price) {
+                    total += parseFloat(option.dataset.price) * parseInt(quantities[index].value);
+                }
+            });
+
+            totalSpan.textContent = total.toFixed(2);
+        }
+
+        function addMenuItemEntry() {
+            const entry = document.querySelector('.menu-item-entry').cloneNode(true);
+            entry.querySelector('select').value = '';
+            entry.querySelector('input').value = 1;
+            entry.querySelector('.remove-item').style.display = 'block';
+            container.appendChild(entry);
+
+            entry.querySelector('.remove-item').addEventListener('click', function() {
+                entry.remove();
+                updateTotal();
+            });
+
+            entry.querySelector('select').addEventListener('change', updateTotal);
+            entry.querySelector('input').addEventListener('change', updateTotal);
+        }
+
+        addButton.addEventListener('click', addMenuItemEntry);
+
+        // Set up initial event listeners
+        document.querySelectorAll('.menu-item-select').forEach(select => {
+            select.addEventListener('change', updateTotal);
+        });
+
+        document.querySelectorAll('.quantity-input').forEach(input => {
+            input.addEventListener('change', updateTotal);
+        });
+    });
+</script>
+
+</body>
+</html>
