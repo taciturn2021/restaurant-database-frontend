@@ -26,12 +26,15 @@
                 <select name="waiter_id" required class="form-input">
                     <% waiters.forEach(waiter => { %>
                         <option value="<%= waiter._id %>">
-                            <%= waiter.employee_id.name %>
+                            <%= waiter.employee_id && waiter.employee_id.person_id
+                                    ? waiter.employee_id.person_id.name
+                                    : 'Unnamed Waiter' %>
                         </option>
                     <% }) %>
                 </select>
             </div>
 
+            <!-- Container for menu items -->
             <div id="menuItems">
                 <div class="menu-item-entry">
                     <div class="form-group">
@@ -44,18 +47,18 @@
                             <% }) %>
                         </select>
                     </div>
-
                     <div class="form-group">
                         <label>Quantity</label>
-                        <input type="number" name="items[0][quantity]" class="form-input quantity-input" value="1" min="1" required>
+                        <input type="number" name="items[0][quantity]" class="form-input" value="1" min="1" required>
                     </div>
-
                     <div class="form-group">
                         <label>Special Instructions</label>
-                        <input type="text" name="items[0][special_instructions]" class="form-input" placeholder="Special instructions">
+                        <input type="text" name="items[0][special_instructions]" class="form-input">
                     </div>
 
-                    <button type="button" class="btn btn-danger remove-item" onclick="removeMenuItem(this)">Remove</button>
+                    <button type="button" class="btn btn-danger remove-item" onclick="removeMenuItem(this)">
+                        Remove
+                    </button>
                 </div>
             </div>
 
@@ -94,13 +97,15 @@
             </div>
             <div class="form-group">
                 <label>Quantity</label>
-                <input type="number" name="items[${menuItemCount}][quantity]" class="form-input quantity-input" value="1" min="1" required>
+                <input type="number" name="items[${menuItemCount}][quantity]" class="form-input" value="1" min="1" required>
             </div>
             <div class="form-group">
                 <label>Special Instructions</label>
-                <input type="text" name="items[${menuItemCount}][special_instructions]" class="form-input" placeholder="Special instructions">
+                <input type="text" name="items[${menuItemCount}][special_instructions]" class="form-input">
             </div>
-            <button type="button" class="btn btn-danger remove-item" onclick="removeMenuItem(this)">Remove</button>
+            <button type="button" class="btn btn-danger remove-item" onclick="removeMenuItem(this)">
+                Remove
+            </button>
         `;
         container.appendChild(newItem);
         menuItemCount++;
@@ -109,7 +114,15 @@
     function removeMenuItem(button) {
         button.closest('.menu-item-entry').remove();
     }
-</script>
 
+    // Prevent form submission if no items are present
+    document.getElementById('newOrderForm').addEventListener('submit', function(event) {
+        const menuItems = document.querySelectorAll('.menu-item-entry');
+        if (menuItems.length === 0) {
+            event.preventDefault();
+            alert('Error: You must add at least one item to the order.');
+        }
+    });
+</script>
 </body>
 </html>

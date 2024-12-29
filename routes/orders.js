@@ -54,10 +54,21 @@ router.get('/', async (req, res) => {
 // Show new order form
 router.get('/new', async (req, res) => {
     try {
+        // Fetch available tables (optional filter by status)
         const tables = await Restaurant_Table.find({ status: 'Available' }).lean();
-        const waiters = await Waiter.find().populate('employee_id').lean();
-        const menuItems = await Menu_Item.find({ is_available: 1 }).lean();
 
+        // Fetch waiters and populate both employee_id and the person_id inside Employee
+        const waiters = await Waiter.find()
+            .populate({
+                path: 'employee_id',
+                populate: { path: 'person_id' }
+            })
+            .lean();
+
+        // Fetch menu items
+        const menuItems = await Menu_Item.find().lean();
+
+        // Render the "new" form
         res.render('orders/new', {
             tables,
             waiters,
@@ -65,7 +76,7 @@ router.get('/new', async (req, res) => {
         });
     } catch (error) {
         console.error('Error loading new order form:', error);
-        res.redirect('/orders');
+        res.status(500).send('Error loading new order form');
     }
 });
 
@@ -106,34 +117,41 @@ router.get('/:id/edit', async (req, res) => {
 // Create new order
 router.post('/', async (req, res) => {
     try {
-        const { waiter_id, table_id, items, special_requests } = req.body;
+        const { waiter_id, table_id, customer_id, items, special_requests } = req.body;
 
-        // Create order items and calculate total
-        const orderItems = await Promise.all(items.map(async (item) => {
-            const menuItem = await Menu_Item.findById(item.menu_item_id);
-            const orderItem = new Order_Item({
-                menu_item: item.menu_item_id,
-                quantity: item.quantity,
-                price: menuItem.price * item.quantity,
-                special_instructions: item.special_instructions
-            });
-            await orderItem.save();
-            return orderItem;
-        }));
+        // Ensure there is at least one item
+        if (!items || items.length === 0) {
+            return res.status(400).json({ error: 'An order must contain at least one item.' });
+        }
 
+        // Create order items
+        const orderItems = await Promise.all(
+            items.map(async (item) => {
+                const menuItem = await Menu_Item.findById(item.menu_item_id);
+                const orderItem = new Order_Item({
+                    menu_item: item.menu_item_id,
+                    quantity: item.quantity,
+                    price: menuItem.price * item.quantity,
+                    special_instructions: item.special_instructions
+                });
+                await orderItem.save();
+                return orderItem;
+            })
+        );
+
+        // Calculate total amount
         const totalAmount = orderItems.reduce((sum, item) => sum + item.price, 0);
 
         // Create order
         const order = new Restaurant_Order({
             waiter_id,
             table_id,
+            customer_id,
             order_items: orderItems.map(item => item._id),
             total_amount: totalAmount,
             special_requests,
-            status: 'Open',
-            payment_status: 'Pending'
+            status: 'Open'
         });
-
         await order.save();
 
         // Update table status
