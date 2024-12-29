@@ -17,6 +17,10 @@ const orderSchema = new mongoose.Schema({
         ref: 'Restaurant_Table',
         required: true
     },
+    order_items: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Order_Item'
+    }],
     order_time: {
         type: Date,
         default: Date.now
@@ -27,6 +31,12 @@ const orderSchema = new mongoose.Schema({
     },
     status: {
         type: String,
+        enum: ['Open', 'In Progress', 'Completed', 'Closed'],
+        default: 'Open'
+    },
+    payment_status: {
+        type: String,
+        enum: ['Pending', 'Completed'],
         default: 'Pending'
     },
     special_requests: String

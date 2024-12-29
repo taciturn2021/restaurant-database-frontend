@@ -2,58 +2,117 @@
 const express = require('express');
 const router = express.Router();
 const Restaurant_Order = require('../models/restaurant_order');
+const Order_Item = require('../models/order_item');
+const Restaurant_Table = require('../models/restaurant_table');
+const Menu_Item = require('../models/menu_item');
+const Waiter = require('../models/waiter');
+const Review = require('../models/review');
+const Payment = require('../models/payment');
 
+// Get all orders
 router.get('/', async (req, res) => {
     try {
-        console.log('Attempting to fetch orders...');
         const orders = await Restaurant_Order.find()
             .populate([
                 {
                     path: 'customer_id',
-                    populate: {
-                        path: 'person_id'
-                    }
+                    populate: { path: 'person_id' }
                 },
                 {
                     path: 'waiter_id',
-                    populate: {
-                        path: 'person_id'
-                    }
+                    populate: { path: 'employee_id' }
                 },
                 {
                     path: 'table_id'
+                },
+                {
+                    path: 'order_items',
+                    populate: { path: 'menu_item' }
                 }
             ])
+            .sort({ order_time: -1 })
             .lean();
 
-        console.log('Raw orders data:', orders);
+        const tables = await Restaurant_Table.find().lean();
+        const waiters = await Waiter.find().populate('employee_id').lean();
+        const menuItems = await Menu_Item.find().lean();
 
-        if (!orders || orders.length === 0) {
-            return res.render('orders/index', {
-                orders: [],
-                error: 'No orders found in database'
-            });
-        }
-
-        const mappedOrders = orders.map(order => ({
-            id: order._id.toString(),
-            customer_name: order.customer_id?.person_id?.name || 'N/A',
-            waiter_name: order.waiter_id?.person_id?.name || 'N/A',
-            table_number: order.table_id?.number || 'N/A',
-            order_time: order.order_time ? new Date(order.order_time).toLocaleString() : 'N/A',
-            total_amount: order.total_amount?.toFixed(2) || '0.00',
-            status: order.status || 'Pending',
-            special_requests: order.special_requests || 'None'
-        }));
-
-        console.log('Mapped orders data:', mappedOrders);
-        res.render('orders/index', { orders: mappedOrders });
+        res.render('orders/index', {
+            orders,
+            tables,
+            waiters,
+            menuItems
+        });
     } catch (error) {
         console.error('Error fetching orders:', error);
         res.render('orders/index', {
-            orders: [],
-            error: 'Error loading orders. Please try again.'
+            error: 'Error loading orders'
         });
+    }
+});
+
+// Create new order
+router.post('/', async (req, res) => {
+    try {
+        const { waiter_id, table_id, customer_id, items, special_requests } = req.body;
+
+        // Create order items
+        const orderItems = await Promise.all(items.map(async (item) => {
+            const menuItem = await Menu_Item.findById(item.menu_item_id);
+            const orderItem = new Order_Item({
+                menu_item: item.menu_item_id,
+                quantity: item.quantity,
+                price: menuItem.price * item.quantity,
+                special_instructions: item.special_instructions
+            });
+            await orderItem.save();
+            return orderItem;
+        }));
+
+        // Calculate total amount
+        const totalAmount = orderItems.reduce((sum, item) => sum + item.price, 0);
+
+        // Create order
+        const order = new Restaurant_Order({
+            waiter_id,
+            table_id,
+            customer_id,
+            order_items: orderItems.map(item => item._id),
+            total_amount: totalAmount,
+            special_requests,
+            status: 'Open'
+        });
+
+        await order.save();
+
+        // Update table status
+        await Restaurant_Table.findByIdAndUpdate(table_id, { status: 'Occupied' });
+
+        res.redirect('/orders');
+    } catch (error) {
+        console.error('Error creating order:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Update order status
+router.put('/:id/status', async (req, res) => {
+    try {
+        const { status } = req.body;
+        const order = await Restaurant_Order.findById(req.params.id);
+
+        order.status = status;
+
+        if (status === 'Closed') {
+            // Free up the table
+            await Restaurant_Table.findByIdAndUpdate(order.table_id, { status: 'Available' });
+        }
+
+        await order.save();
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error updating order status:', error);
+        res.status(500).json({ error: error.message });
     }
 });
 
