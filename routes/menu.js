@@ -103,14 +103,20 @@ router.get('/items/new', async (req, res) => {
 // Create menu item
 router.post('/items', async (req, res) => {
     try {
-        const { name, description, price, category, is_available, selectedIngredients } = req.body;
+        const { name, description, price, category, is_available, selectedIngredients, quantities } = req.body;
 
-        // Build an array of ingredients from the selectedIngredients
-        // Example: selectedIngredients could be an array of {ingredientID, quantity} from the form
-        const ingredientsArray = selectedIngredients.map(el => ({
-            ingredient: el.ingredientID,
-            quantity: el.quantity
-        }));
+        // Create ingredients array only from selected ingredients
+        const ingredientsArray = [];
+        if (Array.isArray(selectedIngredients)) {
+            selectedIngredients.forEach((ingredientId, index) => {
+                if (quantities[index]) { // Only add if quantity is provided
+                    ingredientsArray.push({
+                        ingredient: ingredientId,
+                        quantity: parseFloat(quantities[index])
+                    });
+                }
+            });
+        }
 
         const menuItem = new MenuItem({
             name,
@@ -120,26 +126,32 @@ router.post('/items', async (req, res) => {
             is_available: is_available || 1,
             ingredients: ingredientsArray
         });
-        await menuItem.save();
 
+        await menuItem.save();
         res.redirect('/menu/items');
     } catch (error) {
         console.error('Error creating menu item:', error);
-        res.status(500).send('Failed to create menu item');
+        // Send more detailed error information
+        res.status(500).render('menu/items/new', {
+            error: 'Failed to create menu item: ' + error.message,
+            ingredients: await Ingredient.find().lean()
+        });
     }
 });
 
-// Edit menu item form
 router.get('/items/:id/edit', async (req, res) => {
     try {
-        const menuItem = await MenuItem.findById(req.params.id).lean();
+        const menuItem = await MenuItem.findById(req.params.id)
+            .populate('ingredients.ingredient')
+            .lean();
         const ingredients = await Ingredient.find().lean();
 
         if (!menuItem) return res.status(404).send('Menu item not found');
 
         res.render('menu/items/edit', {
             menuItem,
-            ingredients
+            ingredients,
+            error: null
         });
     } catch (error) {
         console.error('Error loading edit menu item form:', error);
@@ -150,14 +162,22 @@ router.get('/items/:id/edit', async (req, res) => {
 // Update menu item
 router.post('/items/:id', async (req, res) => {
     try {
-        const { name, description, price, category, is_available, selectedIngredients } = req.body;
+        const { name, description, price, category, is_available, selectedIngredients, quantities } = req.body;
 
-        const ingredientsArray = selectedIngredients.map(el => ({
-            ingredient: el.ingredientID,
-            quantity: el.quantity
-        }));
+        // Create ingredients array only from selected ingredients
+        const ingredientsArray = [];
+        if (Array.isArray(selectedIngredients)) {
+            selectedIngredients.forEach((ingredientId, index) => {
+                if (quantities[index]) {
+                    ingredientsArray.push({
+                        ingredient: ingredientId,
+                        quantity: parseFloat(quantities[index])
+                    });
+                }
+            });
+        }
 
-        await MenuItem.findByIdAndUpdate(
+        const updatedMenuItem = await MenuItem.findByIdAndUpdate(
             req.params.id,
             {
                 name,
@@ -166,13 +186,28 @@ router.post('/items/:id', async (req, res) => {
                 category,
                 is_available: is_available || 1,
                 ingredients: ingredientsArray
-            }
+            },
+            { new: true, runValidators: true }
         );
+
+        if (!updatedMenuItem) {
+            throw new Error('Menu item not found');
+        }
 
         res.redirect('/menu/items');
     } catch (error) {
         console.error('Error updating menu item:', error);
-        res.status(500).send('Failed to update menu item');
+        // Render the edit form again with the error
+        const menuItem = await MenuItem.findById(req.params.id)
+            .populate('ingredients.ingredient')
+            .lean();
+        const ingredients = await Ingredient.find().lean();
+
+        res.status(500).render('menu/items/edit', {
+            menuItem,
+            ingredients,
+            error: 'Failed to update menu item: ' + error.message
+        });
     }
 });
 

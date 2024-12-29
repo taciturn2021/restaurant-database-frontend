@@ -50,21 +50,30 @@
 
             <div class="form-group">
                 <label>Ingredients:</label>
-                <p>Select existing ingredients (check all that apply):</p>
-                <% ingredients.forEach(ingredient => {
-                    const itemIngredient = menuItem.ingredients.find(i =>
-                            i.ingredient.toString() === ingredient._id.toString()
-                    );
-                %>
-                <div style="margin-bottom: 8px;">
-                    <input
-                            type="checkbox"
-                            name="selectedIngredients[<%= ingredient._id %>]"
-                            value="<%= ingredient._id %>"
-                            <%= itemIngredient ? 'checked' : '' %>
-                    >
-                    <%= ingredient.name %> (<%= ingredient.unit %>)
-                </div>
+                <p>Select ingredients and their quantities:</p>
+                <% ingredients.forEach(ingredient => { %>
+                    <div style="margin-bottom: 8px;">
+                        <%
+                            const existingIngredient = menuItem.ingredients.find(
+                                    ing => ing.ingredient._id.toString() === ingredient._id.toString()
+                            );
+                        %>
+                        <input
+                                type="checkbox"
+                                name="selectedIngredients[]"
+                                value="<%= ingredient._id %>"
+                                <%= existingIngredient ? 'checked' : '' %>
+                        >
+                        <label><%= ingredient.name %> (<%= ingredient.unit %>)</label>
+                        <input
+                                type="number"
+                                name="quantities[]"
+                                step="0.01"
+                                placeholder="Quantity"
+                                value="<%= existingIngredient ? existingIngredient.quantity : '' %>"
+                                style="width: 100px; margin-left: 10px;"
+                        >
+                    </div>
                 <% }) %>
             </div>
 

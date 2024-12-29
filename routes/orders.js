@@ -8,6 +8,7 @@ const Menu_Item = require('../models/menu_item');
 const Waiter = require('../models/waiter');
 const Review = require('../models/review');
 const Payment = require('../models/payment');
+const Customer = require('../models/customer');
 
 // Get all orders
 router.get('/', async (req, res) => {
@@ -54,10 +55,10 @@ router.get('/', async (req, res) => {
 // Show new order form
 router.get('/new', async (req, res) => {
     try {
-        // Fetch available tables (optional filter by status)
+        // Fetch available tables
         const tables = await Restaurant_Table.find({ status: 'Available' }).lean();
 
-        // Fetch waiters and populate both employee_id and the person_id inside Employee
+        // Fetch waiters
         const waiters = await Waiter.find()
             .populate({
                 path: 'employee_id',
@@ -68,11 +69,15 @@ router.get('/new', async (req, res) => {
         // Fetch menu items
         const menuItems = await Menu_Item.find().lean();
 
+        // Fetch customers - Add this line
+        const customers = await Customer.find().populate('person_id').lean();
+
         // Render the "new" form
         res.render('orders/new', {
             tables,
             waiters,
-            menuItems
+            menuItems,
+            customers
         });
     } catch (error) {
         console.error('Error loading new order form:', error);
@@ -84,29 +89,19 @@ router.get('/new', async (req, res) => {
 router.get('/:id/edit', async (req, res) => {
     try {
         const order = await Restaurant_Order.findById(req.params.id)
-            .populate([
-                {
-                    path: 'order_items',
-                    populate: { path: 'menu_item' }
-                },
-                {
-                    path: 'table_id'
-                },
-                {
-                    path: 'waiter_id',
-                    populate: { path: 'employee_id' }
-                }
-            ]);
+            .populate([/* ... existing populates ... */]);
 
         const tables = await Restaurant_Table.find().lean();
         const waiters = await Waiter.find().populate('employee_id').lean();
         const menuItems = await Menu_Item.find().lean();
+        const customers = await Customer.find().populate('person_id').lean(); // Add this line
 
         res.render('orders/edit', {
             order,
             tables,
             waiters,
-            menuItems
+            menuItems,
+            customers
         });
     } catch (error) {
         console.error('Error fetching order for edit:', error);

@@ -34,6 +34,17 @@
                 </select>
             </div>
 
+            <div class="form-group">
+                <label>Customer:</label>
+                <select name="customer_id" required class="form-input">
+                    <% customers.forEach(customer => { %>
+                        <option value="<%= customer._id %>">
+                            <%= customer.person_id ? customer.person_id.name : 'Unnamed Customer' %>
+                        </option>
+                    <% }) %>
+                </select>
+            </div>
+
             <!-- Container for menu items -->
             <div id="menuItems">
                 <div class="menu-item-entry">

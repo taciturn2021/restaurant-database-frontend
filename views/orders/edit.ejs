@@ -37,6 +37,18 @@
                 </select>
             </div>
 
+            <div class="form-group">
+                <label>Customer:</label>
+                <select name="customer_id" required>
+                    <% customers.forEach(customer => { %>
+                        <option value="<%= customer._id %>"
+                                <%= order.customer_id._id.toString() === customer._id.toString() ? 'selected' : '' %>>
+                            <%= customer.person_id ? customer.person_id.name : 'Unnamed Customer' %>
+                        </option>
+                    <% }) %>
+                </select>
+            </div>
+
             <div id="menuItems">
                 <% order.order_items.forEach((item, index) => { %>
                     <div class="menu-item-entry">
