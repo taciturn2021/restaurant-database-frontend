@@ -8,7 +8,7 @@
 <div class="container">
     <div class="header-section">
         <h2>Orders</h2>
-        <button class="btn btn-primary" onclick="showNewOrderModal()">New Order</button>
+        <a href="/orders/new" class="btn btn-primary">New Order</a>
     </div>
 
     <% if (typeof error !== 'undefined' && error) { %>
@@ -48,7 +48,8 @@
                     <td>$<%= order.total_amount.toFixed(2) %></td>
                     <td><span class="order-status status-<%= order.status.toLowerCase() %>"><%= order.status %></span></td>
                     <td class="action-buttons">
-                        <button class="btn btn-primary btn-sm" onclick="updateOrderStatus('<%= order._id %>', '<%= order.status %>')">
+                        <a href="/orders/<%= order._id %>/edit" class="btn btn-primary btn-sm">Edit</a>
+                        <button class="btn btn-secondary btn-sm" onclick="updateOrderStatus('<%= order._id %>', '<%= order.status %>')">
                             Update Status
                         </button>
                     </td>
@@ -57,96 +58,9 @@
             </tbody>
         </table>
     </div>
-
-    <!-- New Order Modal -->
-    <div id="newOrderModal" class="modal">
-        <div class="modal-content">
-            <h3>New Order</h3>
-            <form id="newOrderForm" action="/orders" method="POST">
-                <div class="form-group">
-                    <label>Table:</label>
-                    <select name="table_id" required>
-                        <% tables.filter(table => table.status === 'Available').forEach(table => { %>
-                            <option value="<%= table._id %>">Table <%= table.number %></option>
-                        <% }) %>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Waiter:</label>
-                    <select name="waiter_id" required>
-                        <% waiters.forEach(waiter => { %>
-                            <option value="<%= waiter._id %>"><%= waiter.employee_id.name %></option>
-                        <% }) %>
-                    </select>
-                </div>
-
-                <div id="menuItems">
-                    <div class="menu-item-entry">
-                        <div class="menu-item-row">
-                            <select name="items[0][menu_item_id]" required>
-                                <% menuItems.forEach(item => { %>
-                                    <option value="<%= item._id %>"><%= item.name %> - $<%= item.price %></option>
-                                <% }) %>
-                            </select>
-                            <input type="number" name="items[0][quantity]" class="quantity-input" value="1" min="1" required>
-                            <button type="button" class="btn btn-danger remove-item" onclick="removeMenuItem(this)">Remove</button>
-                        </div>
-                        <input type="text" name="items[0][special_instructions]" placeholder="Special instructions">
-                    </div>
-                </div>
-
-                <button type="button" class="btn btn-secondary" onclick="addMenuItem()">Add Item</button>
-
-                <div class="form-group">
-                    <label>Special Requests:</label>
-                    <textarea name="special_requests"></textarea>
-                </div>
-
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">Create Order</button>
-                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-                </div>
-            </form>
-        </div>
-    </div>
 </div>
 
 <script>
-    let menuItemCount = 1;
-
-    function showNewOrderModal() {
-        document.getElementById('newOrderModal').style.display = 'block';
-    }
-
-    function closeModal() {
-        document.getElementById('newOrderModal').style.display = 'none';
-    }
-
-    function addMenuItem() {
-        const container = document.getElementById('menuItems');
-        const newItem = document.createElement('div');
-        newItem.className = 'menu-item-entry';
-        newItem.innerHTML = `
-        <div class="menu-item-row">
-            <select name="items[${menuItemCount}][menu_item_id]" required>
-                <% menuItems.forEach(item => { %>
-                    <option value="<%= item._id %>"><%= item.name %> - $<%= item.price %></option>
-                <% }) %>
-            </select>
-            <input type="number" name="items[${menuItemCount}][quantity]" class="quantity-input" value="1" min="1" required>
-            <button type="button" class="btn btn-danger remove-item" onclick="removeMenuItem(this)">Remove</button>
-        </div>
-        <input type="text" name="items[${menuItemCount}][special_instructions]" placeholder="Special instructions">
-    `;
-        container.appendChild(newItem);
-        menuItemCount++;
-    }
-
-    function removeMenuItem(button) {
-        button.closest('.menu-item-entry').remove();
-    }
-
     async function updateOrderStatus(orderId, currentStatus) {
         let newStatus;
         switch (currentStatus) {

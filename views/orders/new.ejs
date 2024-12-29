@@ -1,0 +1,93 @@
+<!-- views/orders/new.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/head') %>
+<body>
+<%- include('../partials/nav') %>
+
+<div class="container">
+    <div class="header-section">
+        <h2>New Order</h2>
+        <a href="/orders" class="btn btn-secondary">Back to Orders</a>
+    </div>
+
+    <div class="order-form">
+        <form id="newOrderForm" action="/orders" method="POST">
+            <div class="form-group">
+                <label>Table:</label>
+                <select name="table_id" required>
+                    <% tables.filter(table => table.status === 'Available').forEach(table => { %>
+                        <option value="<%= table._id %>">Table <%= table.number %></option>
+                    <% }) %>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Waiter:</label>
+                <select name="waiter_id" required>
+                    <% waiters.forEach(waiter => { %>
+                        <option value="<%= waiter._id %>"><%= waiter.employee_id.name %></option>
+                    <% }) %>
+                </select>
+            </div>
+
+            <div id="menuItems">
+                <div class="menu-item-entry">
+                    <div class="menu-item-row">
+                        <select name="items[0][menu_item_id]" required>
+                            <% menuItems.forEach(item => { %>
+                                <option value="<%= item._id %>"><%= item.name %> - $<%= item.price %></option>
+                            <% }) %>
+                        </select>
+                        <input type="number" name="items[0][quantity]" class="quantity-input" value="1" min="1" required>
+                        <button type="button" class="btn btn-danger remove-item" onclick="removeMenuItem(this)">Remove</button>
+                    </div>
+                    <input type="text" name="items[0][special_instructions]" placeholder="Special instructions">
+                </div>
+            </div>
+
+            <button type="button" class="btn btn-secondary" onclick="addMenuItem()">Add Item</button>
+
+            <div class="form-group">
+                <label>Special Requests:</label>
+                <textarea name="special_requests"></textarea>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Create Order</button>
+                <a href="/orders" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    let menuItemCount = 1;
+
+    function addMenuItem() {
+        const container = document.getElementById('menuItems');
+        const newItem = document.createElement('div');
+        newItem.className = 'menu-item-entry';
+        newItem.innerHTML = `
+            <div class="menu-item-row">
+                <select name="items[${menuItemCount}][menu_item_id]" required>
+                    <% menuItems.forEach(item => { %>
+                        <option value="<%= item._id %>"><%= item.name %> - $<%= item.price %></option>
+                    <% }) %>
+                </select>
+                <input type="number" name="items[${menuItemCount}][quantity]" class="quantity-input" value="1" min="1" required>
+                <button type="button" class="btn btn-danger remove-item" onclick="removeMenuItem(this)">Remove</button>
+            </div>
+            <input type="text" name="items[${menuItemCount}][special_instructions]" placeholder="Special instructions">
+        `;
+        container.appendChild(newItem);
+        menuItemCount++;
+    }
+
+    function removeMenuItem(button) {
+        button.closest('.menu-item-entry').remove();
+    }
+</script>
+
+</body>
+</html>
