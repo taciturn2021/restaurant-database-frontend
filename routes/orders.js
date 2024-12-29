@@ -89,12 +89,33 @@ router.get('/new', async (req, res) => {
 router.get('/:id/edit', async (req, res) => {
     try {
         const order = await Restaurant_Order.findById(req.params.id)
-            .populate([/* ... existing populates ... */]);
+            .populate([
+                {
+                    path: 'customer_id',
+                    populate: { path: 'person_id' }
+                },
+                {
+                    path: 'waiter_id',
+                    populate: { path: 'employee_id' }
+                },
+                {
+                    path: 'table_id'
+                },
+                {
+                    path: 'order_items',
+                    populate: { path: 'menu_item' }
+                }
+            ])
+            .lean();
 
         const tables = await Restaurant_Table.find().lean();
-        const waiters = await Waiter.find().populate('employee_id').lean();
+        const waiters = await Waiter.find()
+            .populate('employee_id')
+            .lean();
         const menuItems = await Menu_Item.find().lean();
-        const customers = await Customer.find().populate('person_id').lean(); // Add this line
+        const customers = await Customer.find()
+            .populate('person_id')
+            .lean();
 
         res.render('orders/edit', {
             order,
